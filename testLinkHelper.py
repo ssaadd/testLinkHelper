@@ -50,12 +50,15 @@ class testLinkHelper(QtWidgets.QMainWindow):
         self.main_window.proj_comBox.currentIndexChanged.connect(self.refresh_suit_list)
 
         self.main_window.clear_info_Button.clicked.connect(self.main_window.infoTextEdit.clear)
-        self.main_window.save_info_Button.clicked.connect(self.save_info)
+        self.main_window.close_Button.clicked.connect(self.close)
         self._insert_signal.connect(self.main_window.infoTextEdit.appendHtml)
 
     def init_config(self):
         '''
-        get project names from testlink
+        Do some initial things:
+            1. Read config from a config file
+            2. Connect to testlink
+            3. Get project and testsuits from testlink
         '''
         try:
             config = utils.read_config_file(CONFIG_FILE)
@@ -78,6 +81,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
             self.main_window.infoTextEdit.appendHtml('Connect server failed: %s' % str(err))
             return
 
+        self.main_window.case_path_Button.setEnabled(True)
         for project in projects:
             self.projs_info_dict[project['name']] = {'id': project['id'], 'prefix': project['prefix']}
         self.main_window.proj_comBox.clear()
@@ -86,6 +90,9 @@ class testLinkHelper(QtWidgets.QMainWindow):
         self.refresh_suit_list()
 
     def refresh_suit_list(self):
+        '''
+        the targetSuit comBox will be refreshed when project name was changed
+        '''
         self.main_window.target_suitComBox.clear()
         self.main_window.target_suitComBox.addItem('/')
         proj_id = self.projs_info_dict[self.main_window.proj_comBox.currentText()]['id']
@@ -94,10 +101,13 @@ class testLinkHelper(QtWidgets.QMainWindow):
             self.main_window.target_suitComBox.addItem(suit['name'])
 
     def import_case(self):
+        '''
+        '''
         self.main_window.infoTextEdit.clear()
         self.main_window.infoTextEdit.appendPlainText(self.tc.connectionInfo())
         info_dict = self.projs_info_dict[self.main_window.proj_comBox.currentText()]
 
+        # start a subthread to import testcase
         subthread = threading.Thread(target=self._insert_case, args=(self.testcase_file, info_dict,))
         subthread.setDaemon(True)
         subthread.start()
@@ -111,7 +121,8 @@ class testLinkHelper(QtWidgets.QMainWindow):
         '''
         case_book = xlrd.open_workbook(self.testcase_file)
         sheet_list = case_book.sheet_names()
-
+        self.main_window.importButton.setEnabled(False)
+        # every sheet will be treated as a testsuit
         for item in sheet_list:
             suit_info = self._get_suit_info(item, proj_info)
             sheet = case_book.sheet_by_name(item)
@@ -123,11 +134,20 @@ class testLinkHelper(QtWidgets.QMainWindow):
                             'actions': case[3].replace('\n', '<br>'),
                             'expected_results': case[4].replace('\n', '<br>'),
                             'execution_type': 0}, ]
-                self.tc.createTestCase(
-                    testcasename=str(case[0]), testsuiteid=suit_info[0]['id'],
-                    testprojectid=proj_info['id'], authorlogin=self.login_name, summary='',
-                    preconditions=case_precondition, importance=HIGH, status='7')
-                self._insert_signal.emit('Import TestCase：%s' % case[0])
+
+                # a testcase which has already existed will not be imported again
+                if self.is_testcase_exist(case[0]):
+                    self._insert_signal.emit(
+                        '<span style=\" font-weight:600;color:#be2517\">TestCase "%s" \
+                        is already exist</span>' % case[0])
+                    continue
+                else:
+                    self.tc.createTestCase(
+                        testcasename=str(case[0]), testsuiteid=suit_info[0]['id'],
+                        testprojectid=proj_info['id'], authorlogin=self.login_name, summary='',
+                        preconditions=case_precondition, importance=HIGH, status='7')
+                    self._insert_signal.emit('Import TestCase：%s' % case[0])
+        self.main_window.importButton.setEnabled(True)
         self._insert_signal.emit('\nImport TestCase from %s successed' % self.testcase_file)
 
     def _get_suit_info(self, suit_name, proj_info):
@@ -164,14 +184,20 @@ class testLinkHelper(QtWidgets.QMainWindow):
     def get_case_path(self):
         self.testcase_file, file_type = QtWidgets.QFileDialog.getOpenFileName(
             self, "Get TestCase", r"/", "Excel(*.xls *xlsx)")
-        self.main_window.case_path.setText(self.testcase_file)
+        if os.path.isfile(self.testcase_file):
+            self.main_window.case_path.setText(self.testcase_file)
+            self.main_window.importButton.setEnabled(True)
 
     def generate_template(self):
         '''
         generate a template file about how to write testcases.
         '''
-        basedir = os.path.dirname(__file__)
-        if os.path.exists(TEMPLATE_FILE):
+        dir_path = QtWidgets.QFileDialog.getExistingDirectory(self, "Where to save template File?", "/")
+        if os.path.isdir(dir_path):
+            template_path = os.path.join(dir_path, TEMPLATE_FILE)
+        else:
+            return
+        if os.path.exists(template_path):
             ret = QtWidgets.QMessageBox.question(self, "testlink Helper", "Template exists, overwrite?")
             if ret == QtWidgets.QMessageBox.No:
                 return
@@ -182,21 +208,34 @@ class testLinkHelper(QtWidgets.QMainWindow):
                 sheet.write(0, i, template_content[i])
                 col = sheet.col(i)
                 col.width = 256 * 40
-            w.save(TEMPLATE_FILE)
-        QtWidgets.QMessageBox.information(
-            self, "testlink Helper", "Generate template successed!\nPath: %s" % os.path.join(basedir, TEMPLATE_FILE))
+            w.save(template_path)
+        self._insert_signal.emit("Generate template successed!<br>Path: %s" % template_path)
 
     def get_help(self):
-        QtWidgets.QMessageBox.information(self, "testlink Helper", "get_help")
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl('https://github.com/donglin-zhang/testLinkHelper'))
 
     def about(self):
         QtWidgets.QMessageBox.about(self, "testlink Helper", about_content)
 
-    def save_info(self):
-        QtWidgets.QMessageBox.information(self, "testlink Helper", "save_info")
+    def is_testcase_exist(self, testcasename):
+        '''
+        Determine whether the testcase exists
+        '''
+        try:
+            self.tc.getTestCaseIDByName(testcasename)
+        except testlinkerrors.TLResponseError as err:
+            if 5030 == err.code:
+                return False
+            else:
+                raise Exception("Unexpected error happened: %s" % str(err.message))
+        return True
 
 
 class optionConfig(QtWidgets.QDialog):
+    '''
+    A dialog to config API information for testlink
+    '''
+
     def __init__(self, parent=None):
         super(optionConfig, self).__init__()
         self.ui_dialog = Ui_optionDialog()
