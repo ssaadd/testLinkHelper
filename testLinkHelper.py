@@ -72,7 +72,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
             projects = self.tc.getProjects()
         except (OSError, testlinkerrors.TLResponseError):
             self.main_window.infoTextEdit.appendHtml(
-                '<p>Server config is  <span style=\" font-weight:600;color:#be2517\">incorrect</span> first</p>')
+                '<p>Server config is  <span style=\" font-weight:600;color:#be2517\">incorrect</span></p>')
             return
         except testlinkerrors.TLConnectionError as err:
             self.main_window.infoTextEdit.appendHtml('Connect server failed: %s' % str(err))
