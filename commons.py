@@ -9,6 +9,7 @@
 from PyQt5.QtCore import PYQT_VERSION_STR
 from platform import python_version
 
+TL_HELPER_VERSION = 'V1.1'
 # file names used in testLinkHelper
 CONFIG_FILE = 'config.ini'
 TEMPLATE_FILE = 'template.xls'
@@ -18,9 +19,11 @@ MANUAL = 1
 AUTOMATED = 2
 READFORREVIEW = 2
 REWORK = 4
-HIGH = 3
-MEDIUM = 2
-LOW = 1
+priority_dict = {
+    '1': 3,
+    '2': 2,
+    '3': 1,
+}
 
 TL_API_PATH = 'lib/api/xmlrpc/v1/xmlrpc.php'
 
@@ -29,9 +32,9 @@ template_content = ['Case Name', 'Priority', 'Pre-condition', 'Action', 'Expecte
 
 
 # string used in about function
-about_content = '''<b>TestLinkHelper V1.0</b><br>\
+about_content = '''<b>TestLinkHelper {0}</b><br>\
 <br>Licensed under the GPL, Version 3.0\
 <br><br>Developed under:\
-<ul><li>Python: {0}</li>\
-<li>PyQt: {1}</li></ul>\
-<br>Copyright &copy; 2017, Hangzhou, China'''.format(python_version(), PYQT_VERSION_STR)
+<ul><li>Python: {1}</li>\
+<li>PyQt: {2}</li></ul>\
+<br>Copyright &copy; 2017, Hangzhou, China'''.format(TL_HELPER_VERSION, python_version(), PYQT_VERSION_STR)

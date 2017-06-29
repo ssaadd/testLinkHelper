@@ -18,9 +18,23 @@ def join_url(base, url):
 
 def read_config_file(file_name):
     '''
-    read config from file_name, if success, return a instance of ConfigParser
-    parameter:
-        file_name: the path of the config file
+    读取配置文件信息
+    参数:
+        file_name: 配置文件路径
+        配置文件内容格式：
+            [sectionA]
+                server_url = http://192.168.1.200:8700/testlink
+                devkey = 20f9b350323cc147deceb53fd73b83ee
+                proxy = xxx
+                login_name = root
+            [sectionB]
+                ......
+    返回值：
+        读取成功，返回ConfigParser对象，格式为：
+         config={
+                'sectionA': {'host': '192.168.1.1', 'port': '80', 'user': 'admin'},
+                'sectionb': {'server': 'xxx.xxx.xxx', 'test': 'test'}, }
+        失败抛出异常
     '''
     config = configparser.ConfigParser()
     if os.path.exists(file_name):
@@ -32,13 +46,15 @@ def read_config_file(file_name):
 
 def write_config_file(file_name, para_dict):
     '''
-    write user config into the config file.
-    parameter:
-        file_name: the path of the config file
-        para_dict: contents of the config, it must be a dict like this:
+    将配置信息写入配置文件.
+    参数:
+        file_name: 配置文件路径
+        para_dict: 配置参数字典，其格式必须如下格式
             para_dict={
                 'server': {'host': '192.168.1.1', 'port': '80', 'user': 'admin'},
                 'local': {'server': 'xxx.xxx.xxx', 'test': 'test'}, }
+    返回值：
+        成功返回True，失败抛出异常
     '''
     config = configparser.ConfigParser()
     if os.path.exists(file_name):
@@ -52,6 +68,7 @@ def write_config_file(file_name, para_dict):
             config.set(section, option, para_dict[section][option])
     with open(file_name, 'w') as f:
         config.write(f)
+    return True
 
 
 if __name__ == '__main__':

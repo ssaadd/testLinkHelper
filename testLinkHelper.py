@@ -55,10 +55,10 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def init_config(self):
         '''
-        Do some initial things:
-            1. Read config from a config file
-            2. Connect to testlink
-            3. Get project and testsuits from testlink
+        界面初始化配置:
+            1. 从配置文件中读取testlink服务配置信息
+            2. 使用配置信息连接testlink
+            3. 获取测试项目和testsuit信息
         '''
         try:
             config = utils.read_config_file(CONFIG_FILE)
@@ -82,47 +82,58 @@ class testLinkHelper(QtWidgets.QMainWindow):
             return
 
         self.main_window.case_path_Button.setEnabled(True)
+
+        # 把从testlink获取的关于测试项目的列表数据转换为字典，字典格式{'project_name': {'id': 12, 'prefix': 'GS'}}
         for project in projects:
             self.projs_info_dict[project['name']] = {'id': project['id'], 'prefix': project['prefix']}
+
         self.main_window.proj_comBox.clear()
-        for key in self.projs_info_dict:
+        for key in self.projs_info_dict:    # refresh the project combox
             self.main_window.proj_comBox.addItem(key)
+
         self.refresh_suit_list()
 
     def refresh_suit_list(self):
         '''
-        the targetSuit comBox will be refreshed when project name was changed
+        当前选中测试项目发生变化时，刷新testsuit列表
         '''
         self.main_window.target_suitComBox.clear()
+        if not self.main_window.proj_comBox.currentText():  # 修复服务参数配置对话框点击确定时，程序崩溃的bug
+            return
         self.main_window.target_suitComBox.addItem('/')
+
         proj_id = self.projs_info_dict[self.main_window.proj_comBox.currentText()]['id']
-        suit_list = self.tc.getFirstLevelTestSuitesForTestProject(proj_id)
-        for suit in suit_list:
-            self.main_window.target_suitComBox.addItem(suit['name'])
+        try:
+            suit_list = self.tc.getFirstLevelTestSuitesForTestProject(proj_id)
+            for suit in suit_list:
+                self.main_window.target_suitComBox.addItem(suit['name'])
+        except testlinkerrors.TLResponseError:
+            return
 
     def import_case(self):
         '''
+        导入测试用例入口
         '''
         self.main_window.infoTextEdit.clear()
         self.main_window.infoTextEdit.appendPlainText(self.tc.connectionInfo())
         info_dict = self.projs_info_dict[self.main_window.proj_comBox.currentText()]
 
-        # start a subthread to import testcase
+        # 启动一个子进程来处理用例导入，防止导入过程中主界面卡死
         subthread = threading.Thread(target=self._insert_case, args=(self.testcase_file, info_dict,))
         subthread.setDaemon(True)
         subthread.start()
 
     def _insert_case(self, testcase_file, proj_info):
         '''
-        insert testcase into testlink
-        parameters:
-            testcase_file: file_path of testcase file, only postfix '.xls','.xlsx' supported
-            proj_info: a dict include projcet informaition, such as {'id': proj_id, 'prefix': project_prefix}
+        将测试用例导入testlink，excel的每一个sheet页作为一个testsuit导入。
+        参数说明:
+            testcase_file:  测试用例路径，仅支持后缀为'.xls','.xlsx'的文件
+            proj_info: 测试项目信息，格式为：{'id': proj_id, 'prefix': project_prefix}
         '''
         case_book = xlrd.open_workbook(self.testcase_file)
         sheet_list = case_book.sheet_names()
         self.main_window.importButton.setEnabled(False)
-        # every sheet will be treated as a testsuit
+        # 每一个sheet被视为一个testsuit
         for item in sheet_list:
             suit_info = self._get_suit_info(item, proj_info)
             sheet = case_book.sheet_by_name(item)
@@ -145,7 +156,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
                     self.tc.createTestCase(
                         testcasename=str(case[0]), testsuiteid=suit_info[0]['id'],
                         testprojectid=proj_info['id'], authorlogin=self.login_name, summary='',
-                        preconditions=case_precondition, importance=HIGH, status='7')
+                        preconditions=case_precondition, importance=priority_dict[str(case[1])], status='7')
                     self._insert_signal.emit('Import TestCase：%s' % case[0])
         self.main_window.importButton.setEnabled(True)
         self._insert_signal.emit('\nImport TestCase from %s successed' % self.testcase_file)
@@ -176,6 +187,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def server_config(self):
         '''
+        testlink服务端配置入口
         '''
         server_dialog = optionConfig()
         if server_dialog.exec_():
@@ -190,7 +202,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def generate_template(self):
         '''
-        generate a template file about how to write testcases.
+        生成测试用例模块
         '''
         dir_path = QtWidgets.QFileDialog.getExistingDirectory(self, "Where to save template File?", "/")
         if os.path.isdir(dir_path):
@@ -219,7 +231,9 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def is_testcase_exist(self, testcasename):
         '''
-        Determine whether the testcase exists
+        根据用例名称检测测试用例是否已存在
+        返回值：
+            存在返回True，不存在返回False
         '''
         try:
             self.tc.getTestCaseIDByName(testcasename)
@@ -233,7 +247,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
 class optionConfig(QtWidgets.QDialog):
     '''
-    A dialog to config API information for testlink
+    配置testlink API信息，sever_url、key、user参数
     '''
 
     def __init__(self, parent=None):
@@ -256,6 +270,9 @@ class optionConfig(QtWidgets.QDialog):
         self.ui_dialog.login_nameEdit.setText(self.config['server']['login_name'])
 
     def write_config(self):
+        '''
+        配置写入配置文件中
+        '''
         para_dict = {
             'server': {'server_url': self.ui_dialog.server_urlEdit.text(),
                         'devkey': self.ui_dialog.devkeyEdit.text(),
