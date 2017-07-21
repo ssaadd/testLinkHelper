@@ -18,3 +18,4 @@
 pip install -i https://mirrors.aliyun.com/pypi/simple <package>
 ```
 
+hi
