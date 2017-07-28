@@ -139,13 +139,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
             sheet = case_book.sheet_by_name(item)
             for i in range(1, sheet.nrows):
                 case = sheet.row_values(i)
-                case_precondition = case[2]
-                self.tc.stepsList = [{
-                            'step_number': 1,
-                            'actions': case[3].replace('\n', '<br>'),
-                            'expected_results': case[4].replace('\n', '<br>'),
-                            'execution_type': 0}, ]
-
+                case_precondition = case[2]														
                 # a testcase which has already existed will not be imported again
                 if self.is_testcase_exist(case[0]):
                     self._insert_signal.emit(
@@ -153,10 +147,17 @@ class testLinkHelper(QtWidgets.QMainWindow):
                         is already exist</span>' % case[0])
                     continue
                 else:
+                    actions_list = case[3].split("。")
+                    expected_results_list = case[4].split("。")
+                    for i in range(len(actions_list) - 1):
+                        if i == 0:
+                            self.tc.initStep("<pre>" + actions_list[i][2:] + "</pre>", "<pre>" + expected_results_list[i][2:] + "</pre>", MANUAL)
+                        else:
+                            self.tc.appendStep("<pre>" + actions_list[i][2:] + "</pre>", "<pre>" + expected_results_list[i][2:] + "</pre>", MANUAL)
                     self.tc.createTestCase(
                         testcasename=str(case[0]), testsuiteid=suit_info[0]['id'],
                         testprojectid=proj_info['id'], authorlogin=self.login_name, summary='',
-                        preconditions=case_precondition, importance=priority_dict[str(case[1])], status='7')
+                        preconditions=case_precondition, importance=priority_dict[case[1]], executiontype=executiontype_dict[case[5]],status='7')
                     self._insert_signal.emit('Import TestCase：%s' % case[0])
         self.main_window.importButton.setEnabled(True)
         self._insert_signal.emit('\nImport TestCase from %s successed' % self.testcase_file)

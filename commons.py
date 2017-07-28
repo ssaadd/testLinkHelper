@@ -20,9 +20,13 @@ AUTOMATED = 2
 READFORREVIEW = 2
 REWORK = 4
 priority_dict = {
-    '1': 3,
-    '2': 2,
-    '3': 1,
+    '低': 3,
+    '中': 2,
+    '高': 1,
+}
+executiontype_dict = {
+    '手工': 1,
+    '自动的': 2,
 }
 
 TL_API_PATH = 'lib/api/xmlrpc/v1/xmlrpc.php'
