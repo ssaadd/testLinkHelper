@@ -101,7 +101,8 @@ class testLinkHelper(QtWidgets.QMainWindow):
         Refresh the testsuit list when the currently selected test item changes
         """
         self.main_window.target_suitComBox.clear()
-        if not self.main_window.proj_comBox.currentText():  # 修复服务参数配置对话框点击确定时，程序崩溃的bug
+        if not self.main_window.proj_comBox.currentText():  # Fix the bug that the program crashes when the service
+            # parameter configuration dialog box is clicked OK
             return
         self.main_window.target_suitComBox.addItem('/')
 
