@@ -147,8 +147,8 @@ class testLinkHelper(QtWidgets.QMainWindow):
                         is already exist</span>' % case[0])
                     continue
                 else:
-                    actions_list = case[3].split("。")
-                    expected_results_list = case[4].split("。")
+                    actions_list = case[3].split(DELIMITER)
+                    expected_results_list = case[4].split(DELIMITER)
                     for i in range(len(actions_list) - 1):
                         if i == 0:
                             self.tc.initStep("<pre>" + actions_list[i][2:] + "</pre>", "<pre>" + expected_results_list[i][2:] + "</pre>", MANUAL)
