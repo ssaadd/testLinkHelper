@@ -15,7 +15,7 @@
 pip install -r requirements.txt
 
 ## Конфигурация подключения к серверу
-config.ini можно создать через gui
+config.ini можно создать через gui Options->Config
 
 Или записать в config.ini
 ```

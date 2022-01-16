@@ -18,10 +18,10 @@ def join_url(base, url):
 
 def read_config_file(file_name):
     '''
-    读取配置文件信息
-    参数:
-        file_name: 配置文件路径
-        配置文件内容格式：
+    Read profile information
+    Parameters:
+        file_name: path to the configuration file
+        Configuration file content format.
             [sectionA]
                 server_url = http://192.168.1.200:8700/testlink
                 devkey = 20f9b350323cc147deceb53fd73b83ee
@@ -29,12 +29,12 @@ def read_config_file(file_name):
                 login_name = root
             [sectionB]
                 ......
-    返回值：
-        读取成功，返回ConfigParser对象，格式为：
+    Return value.
+        Reads successfully and returns a ConfigParser object in the format of
          config={
                 'sectionA': {'host': '192.168.1.1', 'port': '80', 'user': 'admin'},
                 'sectionb': {'server': 'xxx.xxx.xxx', 'test': 'test'}, }
-        失败抛出异常
+        Failure throws an exception
     '''
     config = configparser.ConfigParser()
     if os.path.exists(file_name):
@@ -46,15 +46,15 @@ def read_config_file(file_name):
 
 def write_config_file(file_name, para_dict):
     '''
-    将配置信息写入配置文件.
-    参数:
-        file_name: 配置文件路径
-        para_dict: 配置参数字典，其格式必须如下格式
+    Writes configuration information to the configuration file.
+    Parameters:
+        file_name: path to the configuration file
+        para_dict: Configuration parameter dictionary, which must be in the following format
             para_dict={
                 'server': {'host': '192.168.1.1', 'port': '80', 'user': 'admin'},
                 'local': {'server': 'xxx.xxx.xxx', 'test': 'test'}, }
-    返回值：
-        成功返回True，失败抛出异常
+    Return value.
+        Success returns True, failure throws an exception
     '''
     config = configparser.ConfigParser()
     if os.path.exists(file_name):

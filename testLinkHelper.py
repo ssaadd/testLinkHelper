@@ -55,10 +55,10 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def init_config(self):
         '''
-        界面初始化配置:
-            1. 从配置文件中读取testlink服务配置信息
-            2. 使用配置信息连接testlink
-            3. 获取测试项目和testsuit信息
+        Interface initialization configuration:
+            1. read the testlink service configuration information from the configuration file
+            2. use the configuration information to connect to testlink
+            3. get test items and testsuit information
         '''
         try:
             config = utils.read_config_file(CONFIG_FILE)
@@ -83,7 +83,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
         self.main_window.case_path_Button.setEnabled(True)
 
-        # 把从testlink获取的关于测试项目的列表数据转换为字典，字典格式{'project_name': {'id': 12, 'prefix': 'GS'}}
+        # Convert the list data about the test project obtained from testlink into a dictionary in the format {'project_name': {'id': 12, 'prefix': 'GS'}}
         for project in projects:
             self.projs_info_dict[project['name']] = {'id': project['id'], 'prefix': project['prefix']}
 
@@ -95,7 +95,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def refresh_suit_list(self):
         '''
-        当前选中测试项目发生变化时，刷新testsuit列表
+        Refresh the testsuit list when the currently selected test item changes
         '''
         self.main_window.target_suitComBox.clear()
         if not self.main_window.proj_comBox.currentText():  # 修复服务参数配置对话框点击确定时，程序崩溃的bug
@@ -112,7 +112,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def import_case(self):
         '''
-        导入测试用例入口
+        Import Test Case
         '''
         self.main_window.infoTextEdit.clear()
         self.main_window.infoTextEdit.appendPlainText(self.tc.connectionInfo())
@@ -125,15 +125,15 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def _insert_case(self, testcase_file, proj_info):
         '''
-        将测试用例导入testlink，excel的每一个sheet页作为一个testsuit导入。
-        参数说明:
-            testcase_file:  测试用例路径，仅支持后缀为'.xls','.xlsx'的文件
-            proj_info: 测试项目信息，格式为：{'id': proj_id, 'prefix': project_prefix}
+        Import test cases into testlink, each sheet page of excel is imported as a testsuit.
+        Parameter Description:
+            testcase_file: path of the test case, only files with '.xls', '.xlsx' suffix are supported
+            proj_info: test project information, formatted as {'id': proj_id, 'prefix': project_prefix}
         '''
         case_book = xlrd.open_workbook(self.testcase_file)
         sheet_list = case_book.sheet_names()
         self.main_window.importButton.setEnabled(False)
-        # 每一个sheet被视为一个testsuit
+        # Each sheet is considered as testsuit
         for item in sheet_list:
             suit_info = self._get_suit_info(item, proj_info)
             sheet = case_book.sheet_by_name(item)
@@ -188,7 +188,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def server_config(self):
         '''
-        testlink服务端配置入口
+        testlink server configuration
         '''
         server_dialog = optionConfig()
         if server_dialog.exec_():
@@ -203,7 +203,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def generate_template(self):
         '''
-        生成测试用例模块
+        Generate test cases
         '''
         dir_path = QtWidgets.QFileDialog.getExistingDirectory(self, "Where to save template File?", "/")
         if os.path.isdir(dir_path):
@@ -232,9 +232,9 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
     def is_testcase_exist(self, testcasename):
         '''
-        根据用例名称检测测试用例是否已存在
-        返回值：
-            存在返回True，不存在返回False
+        Detects if a test case already exists based on the case name
+        Return value.
+            Returns True if it exists, False if it does not.
         '''
         try:
             self.tc.getTestCaseIDByName(testcasename)
@@ -248,7 +248,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
 
 class optionConfig(QtWidgets.QDialog):
     '''
-    配置testlink API信息，sever_url、key、user参数
+    Configure testlink API information, sever_url, key, user parameters
     '''
 
     def __init__(self, parent=None):
@@ -272,7 +272,7 @@ class optionConfig(QtWidgets.QDialog):
 
     def write_config(self):
         '''
-        配置写入配置文件中
+        The configuration is written to the configuration file
         '''
         para_dict = {
             'server': {'server_url': self.ui_dialog.server_urlEdit.text(),
