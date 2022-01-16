@@ -6,14 +6,12 @@
 # you may not use this file except in compliance with the License.
 #
 
-import os.path
 import sys
+import os.path
 import threading
-
-import xlrd
-import xlwt
-from PyQt5 import QtCore, QtWidgets, QtGui
+import xlrd, xlwt
 from testlink import TestlinkAPIClient, testlinkerrors
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 import utils
 from commons import *
@@ -22,9 +20,9 @@ from gui.ui_testlinkHelper import Ui_testlinkHelper
 
 
 class testLinkHelper(QtWidgets.QMainWindow):
-    """
+    '''
     import test case into testlink
-    """
+    '''
     _insert_signal = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -56,12 +54,12 @@ class testLinkHelper(QtWidgets.QMainWindow):
         self._insert_signal.connect(self.main_window.infoTextEdit.appendHtml)
 
     def init_config(self):
-        """
+        '''
         Interface initialization configuration:
             1. read the testlink service configuration information from the configuration file
             2. use the configuration information to connect to testlink
             3. get test items and testsuit information
-        """
+        '''
         try:
             config = utils.read_config_file(CONFIG_FILE)
         except FileNotFoundError as err:
@@ -97,9 +95,9 @@ class testLinkHelper(QtWidgets.QMainWindow):
         self.refresh_suit_list()
 
     def refresh_suit_list(self):
-        """
+        '''
         Refresh the testsuit list when the currently selected test item changes
-        """
+        '''
         self.main_window.target_suitComBox.clear()
         if not self.main_window.proj_comBox.currentText():  # Fix the bug that the program crashes when the service
             # parameter configuration dialog box is clicked OK
@@ -122,7 +120,8 @@ class testLinkHelper(QtWidgets.QMainWindow):
         self.main_window.infoTextEdit.appendPlainText(self.tc.connectionInfo())
         info_dict = self.projs_info_dict[self.main_window.proj_comBox.currentText()]
 
-        # 启动一个子进程来处理用例导入，防止导入过程中主界面卡死
+        # Start a sub-process to handle the use case import to prevent the main interface from getting stuck during
+        # the import process
         subthread = threading.Thread(target=self._insert_case, args=(self.testcase_file, info_dict,))
         subthread.setDaemon(True)
         subthread.start()
@@ -143,7 +142,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
             sheet = case_book.sheet_by_name(item)
             for i in range(1, sheet.nrows):
                 case = sheet.row_values(i)
-                case_precondition = case[2]														
+                case_precondition = case[2]
                 # a testcase which has already existed will not be imported again
                 if self.is_testcase_exist(case[0]):
                     self._insert_signal.emit(
@@ -282,9 +281,9 @@ class optionConfig(QtWidgets.QDialog):
         """
         para_dict = {
             'server': {'server_url': self.ui_dialog.server_urlEdit.text(),
-                        'devkey': self.ui_dialog.devkeyEdit.text(),
-                        'proxy': self.ui_dialog.proxyEdit.text(),
-                        'login_name': self.ui_dialog.login_nameEdit.text()}, }
+                       'devkey': self.ui_dialog.devkeyEdit.text(),
+                       'proxy': self.ui_dialog.proxyEdit.text(),
+                       'login_name': self.ui_dialog.login_nameEdit.text()}, }
 
         utils.write_config_file(CONFIG_FILE, para_dict)
         self.accept()
