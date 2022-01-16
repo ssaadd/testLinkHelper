@@ -157,7 +157,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
                     self.tc.createTestCase(
                         testcasename=str(case[0]), testsuiteid=suit_info[0]['id'],
                         testprojectid=proj_info['id'], authorlogin=self.login_name, summary='',
-                        preconditions=case_precondition, importance=priority_dict[case[1]], executiontype=executiontype_dict[case[5]],status='7')
+                        preconditions=case_precondition, importance=priority_dict[case[1]], executiontype=executiontype_dict[case[5]], status='7')
                     self._insert_signal.emit('Import TestCase：%s' % case[0])
         self.main_window.importButton.setEnabled(True)
         self._insert_signal.emit('\nImport TestCase from %s successed' % self.testcase_file)
