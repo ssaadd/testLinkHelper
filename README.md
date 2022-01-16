@@ -1,21 +1,32 @@
 # testLinkHelper
-将excel用例导入testlink中
+Импорт из excel в testlink с помощью API
 
-## 开发环境
-* Python3.6
+## Среда разработки
+* Python 3.6+
 * PyQt5
-* testlink1.9.16
+* testlink1.9.16+
 
-## 程序运行依赖包
-若已有相关包，可直接运行程序，若无相关包，需要先安装包后运行testLinkHelper
+## Зависимости пакетов для запуска программы
 * xlrd
 * xlwt
 * TestLink-API-Python-client
 * PyQt5
-使用pip安装方式如下，国内使用使用阿里镜像站速度比较快:
 
+pip install -r requirements.txt
+
+## Конфигурация подключения к серверу
+config.ini можно создать через gui
+
+Или записать в config.ini
 ```
-pip install -i https://mirrors.aliyun.com/pypi/simple <package>
+[server]
+server_url = localhost
+devkey = apikey
+proxy = 
+login_name = username
 ```
 
-hi
+
+## Запуск
+python testLinkHelper.py
+
