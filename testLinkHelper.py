@@ -104,7 +104,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
         if not self.main_window.proj_comBox.currentText():  # Fix the bug that the program crashes when the service
             # parameter configuration dialog box is clicked OK
             return
-        self.main_window.target_suitComBox.addItem('/')
+        self.main_window.target_suitComBox.addItem('!!!CHANGE_THIS!!!')
 
         proj_id = self.projs_info_dict[self.main_window.proj_comBox.currentText()]['id']
         try:
