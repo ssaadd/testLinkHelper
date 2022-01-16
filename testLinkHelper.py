@@ -6,12 +6,14 @@
 # you may not use this file except in compliance with the License.
 #
 
-import sys
 import os.path
+import sys
 import threading
-import xlrd, xlwt
-from testlink import TestlinkAPIClient, testlinkerrors
+
+import xlrd
+import xlwt
 from PyQt5 import QtCore, QtWidgets, QtGui
+from testlink import TestlinkAPIClient, testlinkerrors
 
 import utils
 from commons import *
