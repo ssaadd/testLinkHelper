@@ -155,10 +155,10 @@ class testLinkHelper(QtWidgets.QMainWindow):
                     expected_results_list = case[4].split(DELIMITER)
                     for i in range(len(actions_list) - 1):
                         if i == 0:
-                            self.tc.initStep("<pre>" + actions_list[i][2:] + "</pre>", "<pre>" + expected_results_list[i][2:] + "</pre>", MANUAL)
+                            self.tc.initStep(actions_list[i][2:], expected_results_list[i][2:], MANUAL)
                         else:
-                            self.tc.appendStep("<pre>" + actions_list[i][2:] + "</pre>",
-                                               "<pre>" + expected_results_list[i][2:] + "</pre>", MANUAL)
+                            self.tc.appendStep(actions_list[i][2:],
+                                              expected_results_list[i][2:], MANUAL)
                     self.tc.createTestCase(
                         testcasename=str(case[0]), testsuiteid=suit_info[0]['id'],
                         testprojectid=proj_info['id'], authorlogin=self.login_name, summary='',
