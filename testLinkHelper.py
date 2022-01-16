@@ -223,7 +223,7 @@ class testLinkHelper(QtWidgets.QMainWindow):
         else:
             w = xlwt.Workbook()
             sheet = w.add_sheet("test_suit")
-            for i in range(5):
+            for i in range(len(template_content)-1):
                 sheet.write(0, i, template_content[i])
                 col = sheet.col(i)
                 col.width = 256 * 40
