@@ -1,0 +1,5 @@
+# pip
+PyQt5
+TestLink-API-Python-Client
+xlwt
+xlrd
