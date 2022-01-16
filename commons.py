@@ -19,20 +19,29 @@ MANUAL = 1
 AUTOMATED = 2
 READFORREVIEW = 2
 REWORK = 4
+
+# Разделитель шагов \n – знак абзаца в ячейке alt+enter или shift+enter
+DELIMITER = '\n'
+
 priority_dict = {
     'Low': 3,
+    'low': 3,
     'Medium': 2,
+    'medium': 2,
     'High': 1,
+    'high': 1,
 }
 executiontype_dict = {
     'Manual': 1,
+    'manual': 1,
     'Automated': 2,
+    'auto': 2,
 }
 
 TL_API_PATH = 'lib/api/xmlrpc/v1/xmlrpc.php'
 
 # list used in generate_template function
-template_content = ['Case Name', 'Priority', 'Pre-condition', 'Action', 'Expected Results']
+template_content = ['Case Name', 'Priority', 'Pre-condition', 'Action', 'Expected Results', 'Execution type']
 
 
 # string used in about function
